@@ -1,3 +1,4 @@
+import 'package:client/core/utils.dart';
 import 'package:client/features/auth/view/pages/login_page.dart';
 import 'package:client/features/auth/view/widgets/auth_gradient_button.dart';
 import 'package:client/features/auth/viewmodel/auth_viewmodel.dart';
@@ -6,11 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_pallete.dart';
 import '../../../../core/widgets/loader.dart';
-import '../../model/user_model.dart';
 import '../widgets/custom_field.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+  const SignUpPage({super.key});
 
   @override
   ConsumerState<SignUpPage> createState() => _SignUpPageState();
@@ -34,35 +34,29 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   Widget build(BuildContext context) {
     final isLoading = ref.watch(authViewModelProvider)?.isLoading == true;
 
-    ref.listen<AsyncValue<UserModel>?>(authViewModelProvider, (_, next) {
-      next?.when(
-        data: (data) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                content: Text('Account Created Successfully, please Log In.'),
+    ref.listen(
+      authViewModelProvider,
+      (_, next) {
+        next?.when(
+          data: (data) {
+            showSnackBar(
+              context,
+              'Account created successfully! Please  login.',
+            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginPage(),
               ),
             );
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LoginPage(),
-            ),
-          );
-        },
-        error: (error, st) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(error.toString()),
-              ),
-            );
-        },
-        loading: () {},
-      );
-    });
+          },
+          error: (error, st) {
+            showSnackBar(context, error.toString());
+          },
+          loading: () {},
+        );
+      },
+    );
 
     return Scaffold(
       appBar: AppBar(
