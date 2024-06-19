@@ -83,7 +83,11 @@ class AuthRemoteRepository {
       }
 
       return Right(
-        UserModel.fromMap(resBodyMap),
+        UserModel.fromMap(
+          resBodyMap['user'],
+        ).copyWith(
+          token: resBodyMap['token'],
+        ),
       );
     } catch (e) {
       return Left(

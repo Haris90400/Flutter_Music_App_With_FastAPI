@@ -9,6 +9,8 @@ from fastapi import APIRouter
 
 from pydantic_schemas.user_login import UserLogin
 
+import jwt
+
 
 router = APIRouter()
 
@@ -40,4 +42,6 @@ def login_user(user:UserLogin,db=Depends(get_db)):
     if not isMatch:
         raise HTTPException(400,'Incorrect Password')
     
-    return user_db
+    token = jwt.encode({'id':user_db.id},'password_key')
+    
+    return {'token':token,'user':user_db}
