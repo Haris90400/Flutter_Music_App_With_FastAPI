@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_pallete.dart';
+import '../../../../core/widgets/custom_field.dart';
 import '../../model/user_model.dart';
 import '../widgets/auth_gradient_button.dart';
-import '../widgets/custom_field.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
