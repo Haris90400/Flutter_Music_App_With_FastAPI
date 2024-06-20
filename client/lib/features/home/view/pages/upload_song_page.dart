@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/utils.dart';
 import 'package:client/core/widgets/custom_field.dart';
+import 'package:client/features/home/widgets/audio_wave.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,15 @@ class _UploadsongPageState extends ConsumerState<UploadsongPage> {
     }
   }
 
-  void selectAudio() {}
+  void selectAudio() async {
+    final pickedAudio = await pickAudio();
+
+    if (pickedAudio != null) {
+      setState(() {
+        selectedAudio = pickedAudio;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +74,16 @@ class _UploadsongPageState extends ConsumerState<UploadsongPage> {
               GestureDetector(
                 onTap: selectImage,
                 child: selectedImage != null
-                    ? Image.file(selectedImage!)
+                    ? SizedBox(
+                        height: 150,
+                        width: double.infinity,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.file(
+                            selectedImage!,
+                            fit: BoxFit.cover,
+                          ),
+                        ))
                     : DottedBorder(
                         radius: const Radius.circular(20),
                         borderType: BorderType.RRect,
@@ -99,12 +117,14 @@ class _UploadsongPageState extends ConsumerState<UploadsongPage> {
               const SizedBox(
                 height: 40,
               ),
-              CustomField(
-                hintText: 'Pick Song',
-                controller: null,
-                readOnly: true,
-                onTap: () {},
-              ),
+              selectedAudio != null
+                  ? AudioWave(path: selectedAudio!.path)
+                  : CustomField(
+                      hintText: 'Pick Song',
+                      controller: null,
+                      readOnly: true,
+                      onTap: selectAudio,
+                    ),
               const SizedBox(
                 height: 20,
               ),
