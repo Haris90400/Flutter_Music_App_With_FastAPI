@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'auth_local_repository.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 AuthLocalRepository authLocalRepository(AuthLocalRepositoryRef ref) {
   return AuthLocalRepository();
 }
@@ -12,7 +12,6 @@ class AuthLocalRepository {
   late SharedPreferences _sharedPreferences;
 
   Future<void> init() async {
-    print("Initializing");
     _sharedPreferences = await SharedPreferences.getInstance();
   }
 
