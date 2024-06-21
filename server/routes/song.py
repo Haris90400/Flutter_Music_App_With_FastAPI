@@ -12,15 +12,12 @@ import uuid
 import os
 from dotenv import load_dotenv
 
+from models.song import Song
+
 load_dotenv()
 
 API_KEY = os.getenv('API_KEY')
 API_SECRET = os.getenv('API_SECRET')
-
-print(f"API_KEY: {API_KEY}")
-print(f"API_SECRET: {API_SECRET}")
-
-
 
 # Configuration       
 cloudinary.config( 
@@ -34,7 +31,7 @@ cloudinary.config(
 
 router = APIRouter()
 
-@router.post('/upload')
+@router.post('/upload',status_code=201)
 def upload_songs(song:UploadFile = File(...),
                  thumbnail:UploadFile = File(...),
                  artist:str = Form(...),
@@ -49,4 +46,16 @@ def upload_songs(song:UploadFile = File(...),
     thumbnail_res = cloudinary.uploader.upload(thumbnail.file,resource_type="image",folder=f'songs/{song_id}')
     print(thumbnail_res)
 
-    return 'ok'
+    new_song = Song(
+        id=song_id,
+        song_name = song_name,
+        artist = artist,
+        hex_code = hex_code,
+        song_url = song_res['url'],
+        thumbnail_url = thumbnail_res['url'])
+
+    db.add(new_song)
+    db.commit()
+    db.refresh(new_song)
+
+    return new_song
