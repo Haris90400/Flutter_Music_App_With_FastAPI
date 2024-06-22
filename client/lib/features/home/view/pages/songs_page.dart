@@ -1,3 +1,4 @@
+import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/widgets/loader.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
@@ -9,29 +10,36 @@ class SongsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                'Latest Today',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                ),
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              'Latest Today',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            ref.watch(getAllSongsProvider).when(
-                  data: (songs) {
-                    return SizedBox(
-                      height: 260,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          return Padding(
+          ),
+          ref.watch(getAllSongsProvider).when(
+                data: (songs) {
+                  return SizedBox(
+                    height: 260,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            ref
+                                .read(currentSongNotifierProvider.notifier)
+                                .updateSong(
+                                  songs[index],
+                                );
+                          },
+                          child: Padding(
                             padding: const EdgeInsets.only(left: 16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,23 +87,23 @@ class SongsPage extends ConsumerWidget {
                                 ),
                               ],
                             ),
-                          );
-                        },
-                        itemCount: songs.length,
-                      ),
-                    );
-                  },
-                  error: (error, st) {
-                    return Center(
-                      child: Text(
-                        error.toString(),
-                      ),
-                    );
-                  },
-                  loading: () => const Loader(),
-                ),
-          ],
-        ),
+                          ),
+                        );
+                      },
+                      itemCount: songs.length,
+                    ),
+                  );
+                },
+                error: (error, st) {
+                  return Center(
+                    child: Text(
+                      error.toString(),
+                    ),
+                  );
+                },
+                loading: () => const Loader(),
+              ),
+        ],
       ),
     );
   }
