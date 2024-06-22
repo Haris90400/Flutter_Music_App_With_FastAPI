@@ -1,4 +1,5 @@
 import 'package:client/features/home/models/song_model.dart';
+import 'package:client/features/home/repositories/home_local_repository.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -6,10 +7,12 @@ part 'current_song_notifier.g.dart';
 
 @riverpod
 class CurrentSongNotifier extends _$CurrentSongNotifier {
+  late HomeLocalRepository _homeLocalRepository;
   AudioPlayer? audioPlayer;
   bool isPlaying = false;
   @override
   SongModel? build() {
+    _homeLocalRepository = ref.watch(homeLocalRepositoryProvider);
     return null;
   }
 
@@ -32,6 +35,8 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
         }
       },
     );
+
+    _homeLocalRepository.uploadLocalSong(song);
 
     await audioPlayer!.setAudioSource(audioSoure);
     isPlaying = true;
