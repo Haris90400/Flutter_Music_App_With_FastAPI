@@ -1,8 +1,10 @@
 import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
+import 'package:client/core/utils.dart';
 import 'package:client/core/widgets/loader.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SongsPage extends ConsumerWidget {
@@ -12,23 +14,91 @@ class SongsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final recentlyPlayedSongs =
         ref.watch(homeViewModelProvider.notifier).getRecentlyPlayedSongs();
-    return SafeArea(
+
+    final currentsong = ref.watch(currentSongNotifierProvider);
+    return AnimatedContainer(
+      duration: const Duration(
+        milliseconds: 500,
+      ),
+      decoration: currentsong == null
+          ? null
+          : BoxDecoration(
+              gradient: LinearGradient(
+                  end: Alignment.bottomRight,
+                  begin: Alignment.topLeft,
+                  colors: [
+                    HexToRgb(currentsong.hex_code),
+                    Pallete.transparentColor,
+                  ],
+                  stops: const [
+                    0.0,
+                    0.3,
+                  ]),
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 280,
-            child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 200,
-                  childAspectRatio: 3,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
-                itemCount: recentlyPlayedSongs.length,
-                itemBuilder: (context, index) {
-                  return null;
-                }),
+          Padding(
+            padding:
+                const EdgeInsets.only(left: 16, right: 16, bottom: 36, top: 16),
+            child: SizedBox(
+              height: 280,
+              child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    childAspectRatio: 3,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: recentlyPlayedSongs.length,
+                  itemBuilder: (context, index) {
+                    final song = recentlyPlayedSongs[index];
+                    return GestureDetector(
+                      onTap: () {
+                        ref
+                            .read(currentSongNotifierProvider.notifier)
+                            .updateSong(song);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Pallete.borderColor,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.only(right: 20),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 56,
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(4),
+                                    bottomLeft: Radius.circular(4)),
+                                image: DecorationImage(
+                                  image: NetworkImage(song.thumbnail_url),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Flexible(
+                              child: Text(
+                                song.song_name,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+            ),
           ),
           const Padding(
             padding: EdgeInsets.all(8.0),
