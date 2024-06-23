@@ -12,7 +12,11 @@ import uuid
 import os
 from dotenv import load_dotenv
 
+from models.favorite_song import Favorite
 from models.song import Song
+from pydantic_schemas.favorite_song import FavoriteSong
+
+from sqlalchemy.orm import joinedload
 
 load_dotenv()
 
@@ -65,3 +69,29 @@ def list_songs(db:Session = Depends(get_db),auth_dict=Depends(auth_middleware)):
     songs = db.query(Song).all()
 
     return songs
+
+@router.post('/favorite')
+def favorite_song(song: FavoriteSong, 
+                  db: Session=Depends(get_db), 
+                  auth_details=Depends(auth_middleware)):
+    # song is already favorited by the user
+    user_id = auth_details['uid']
+
+    fav_song = db.query(Favorite).filter(Favorite.song_id == song.song_id, Favorite.user_id == user_id).first()
+
+    if fav_song:
+        db.delete(fav_song)
+        db.commit()
+        return {'message': False}
+    else:
+        new_fav = Favorite(id=str(uuid.uuid4()), song_id=song.song_id, user_id=user_id)
+        db.add(new_fav)
+        db.commit()
+        return {'message': True}
+    
+@router.get('/list/favorites')
+def list_fav_songs(db:Session = Depends(get_db),auth_dict=Depends(auth_middleware)):
+
+    user_id = auth_dict['uid']
+    fav_songs = db.query(Favorite).filter(Favorite.user_id == user_id).options(joinedload(Favorite.song)).all()
+    return fav_songs
