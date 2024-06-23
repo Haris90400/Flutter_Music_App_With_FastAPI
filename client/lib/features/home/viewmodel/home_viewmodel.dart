@@ -64,4 +64,23 @@ class HomeViewModel extends _$HomeViewModel {
   List<SongModel> getRecentlyPlayedSongs() {
     return _homeLocalRepository.loadSongs();
   }
+
+  Future<void> favoriteSong({
+    required String songId,
+  }) async {
+    state = const AsyncValue.loading();
+
+    final res = await _homeRepository.favoriteSong(
+      songId: songId,
+      token: ref.read(currentUserNotifierProvider)!.token,
+    );
+
+    final val = switch (res) {
+      Left(value: final l) => state =
+          AsyncValue.error(l.message, StackTrace.current),
+      Right(value: final r) => state = AsyncValue.data(r),
+    };
+
+    print(val);
+  }
 }

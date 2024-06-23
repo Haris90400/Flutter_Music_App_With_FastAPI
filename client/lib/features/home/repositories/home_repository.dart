@@ -97,4 +97,29 @@ class HomeRepository {
       return Left(AppFailure(e.toString()));
     }
   }
+
+  Future<Either<AppFailure, bool>> favoriteSong(
+      {required String token, required String songId}) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ServerConstant.serverUrl}/songs/favorite'),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token,
+        },
+      );
+      var resBodyMap = jsonDecode(res.body);
+
+      if (res.statusCode != 200) {
+        resBodyMap = resBodyMap as Map<String, dynamic>;
+        return Left(AppFailure(resBodyMap['detail']));
+      }
+
+      return Right(
+        resBodyMap['message'],
+      );
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
 }
