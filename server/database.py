@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = 'postgresql://postgres:7865@localhost:5432/flutter_music_app'
+DATABASE_URL = 'postgresql://postgres:<password>@localhost:5432/flutter_music_app'
 
 # Create an SQLAlchemy engine instance to manage connections to the database
 engine = create_engine(DATABASE_URL)
